@@ -130,12 +130,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //     });
 // });
 
-// app.get("/", (request, response) => {
-//   console.log(request);
-//   Symbols.find({ id: { $gte: 0 } }).then((data) => {
-//     response.json({ data });
-//   });
-// });
+app.get("/test", (request, response) => {
+  console.log(request);
+  response.json({ message: "You are free to access me anytime" });
+});
 
 // free endpoint
 // app.get("/free-endpoint", (request, response) => {
