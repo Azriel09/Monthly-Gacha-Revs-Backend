@@ -1,9 +1,12 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const app = express();
 const fs = require("fs");
+const Games = require("./db/gameModel");
+const Admin = require("./db/adminModel");
 const dbConnect = require("./db/dbConnect");
+const bcrypt = require("bcrypt");
 const cors = require("cors");
+const app = express();
 const db = dbConnect();
 
 app.use((req, res, next) => {
@@ -25,154 +28,120 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // register
-// app.post("/register", (request, response) => {
-//   // hash the password
-//   bcrypt
-//     .hash(request.body.password, 10)
-//     .then((hashedPassword) => {
-//       // create a new user instance and collect the data
-//       const user = new User({
-//         name: request.body.name,
-//         email: request.body.email,
-//         password: hashedPassword,
-//       });
+app.post("/register", (request, response) => {
+  // hash the password
+  bcrypt
+    .hash(request.body.password, 10)
+    .then((hashedPassword) => {
+      // create a new user instance and collect the data
+      const user = new Admin({
+        username: request.body.username,
 
-//       // save the new user
-//       user
-//         .save()
-//         // return success if the new user is added to the database successfully
-//         .then((result) => {
-//           response.status(201).send({
-//             message: "User Created Successfully",
-//             result,
-//           });
-//         })
-//         // catch erroe if the new user wasn't added successfully to the database
-//         .catch((error) => {
-//           response.status(500).send({
-//             message: "Error creating user",
-//             error,
-//           });
-//         });
-//     })
-//     // catch error if the password hash isn't successful
-//     .catch((e) => {
-//       response.status(500).send({
-//         message: "Password was not hashed successfully",
-//         e,
-//       });
-//     });
-// });
+        password: hashedPassword,
+      });
 
-// login
-// app.post("/login", (request, response) => {
-//   // check if email exists
-//   const rem = request.body.remember;
-//   User.findOne({ email: request.body.email })
-
-//     // if email exists
-//     .then((user) => {
-//       // compare the password entered and the hashed password found
-//       console.log(user.id);
-//       bcrypt
-//         .compare(request.body.password, user.password)
-
-//         // if the passwords match
-//         .then((passwordCheck) => {
-//           // check if password matches
-//           if (!passwordCheck) {
-//             return response.status(400).send({
-//               message: "Passwords does not match",
-//               error,
-//             });
-//           }
-
-//           function expiree() {
-//             if (request.body.remember == true) {
-//               return "30d";
-//             } else {
-//               return "1h";
-//             }
-//           }
-//           console.log(expiree());
-//           //   create JWT token
-//           const token = jwt.sign(
-//             {
-//               userId: user._id,
-//               userEmail: user.email,
-//             },
-//             "RANDOM-TOKEN",
-
-//             { expiresIn: expiree() }
-//           );
-
-//           //   return success response
-//           response.status(200).send({
-//             message: "Login Successful",
-//             email: user.email,
-//             token,
-//           });
-//         })
-//         // catch error if password does not match
-//         .catch((error) => {
-//           response.status(400).send({
-//             message: "Passwords does not match",
-//             error,
-//           });
-//         });
-//     })
-//     // catch error if email does not exist
-//     .catch((e) => {
-//       response.status(404).send({
-//         message: "Email not found",
-//         e,
-//       });
-//     });
-// });
-
+      // save the new user
+      user
+        .save()
+        // return success if the new user is added to the database successfully
+        .then((result) => {
+          response.status(201).send({
+            message: "User Created Successfully",
+            result,
+          });
+        })
+        // catch erroe if the new user wasn't added successfully to the database
+        .catch((error) => {
+          response.status(500).send({
+            message: "Error creating user",
+            error,
+          });
+        });
+    })
+    // catch error if the password hash isn't successful
+    .catch((e) => {
+      response.status(500).send({
+        message: "Password was not hashed successfully",
+        e,
+      });
+    });
+});
 app.get("/test", (request, response) => {
   console.log(request);
   response.json({ message: "You are free to access me anytime" });
 });
 
-// free endpoint
-// app.get("/free-endpoint", (request, response) => {
-//   response.json({ message: "You are free to access me anytime" });
-// });
+app.get("/games", function (req, res) {
+  Games.find({}).then(function (game) {
+    res.send(game);
+  });
+});
 
-// authentication endpoint
-// app.get("/auth-endpoint", auth, (request, response) => {
-//   const id = request.user.userId;
-//   const selected = request.headers.currency;
+// login
+app.post("/login", (request, response) => {
+  // check if email exists
+  const rem = request.body.remember;
+  User.findOne({ username: request.body.username })
 
-//   if (selected) {
-//     User.findOneAndUpdate(
-//       { email: request.user.userEmail },
-//       { $set: { rates: selected } },
-//       { new: true }
-//     )
-//       .then((user) => {
-//         response.json(user.rates);
-//       })
-//       // catch erroe if the new user wasn't added successfully to the database
-//       .catch((error) => {
-//         response.status(500).send({
-//           message: "Error",
-//           error,
-//         });
-//       });
-//   } else {
-//     User.findOne({ email: request.user.userEmail })
-//       .then((user) => {})
-//       // catch erroe if the new user wasn't added successfully to the database
-//       .catch((error) => {
-//         response.status(500).send({
-//           message: "Error",
-//           error,
-//         });
-//       });
-//   }
-// });
+    // if username exists
+    .then((user) => {
+      // compare the password entered and the hashed password found
+      console.log(user.id);
+      bcrypt
+        .compare(request.body.password, user.password)
+
+        // if the passwords match
+        .then((passwordCheck) => {
+          // check if password matches
+          if (!passwordCheck) {
+            return response.status(400).send({
+              message: "Passwords does not match",
+              error,
+            });
+          }
+
+          function expiree() {
+            if (request.body.remember == true) {
+              return "30d";
+            } else {
+              return "1h";
+            }
+          }
+
+          //   create JWT token
+          const token = jwt.sign(
+            {
+              userId: user._id,
+              userUsername: user.username,
+            },
+            "RANDOM-TOKEN",
+
+            { expiresIn: "7d" }
+          );
+
+          //   return success response
+          response.status(200).send({
+            message: "Login Successful",
+            username: user.username,
+            token,
+          });
+        })
+        // catch error if password does not match
+        .catch((error) => {
+          response.status(400).send({
+            message: "Passwords does not match",
+            error,
+          });
+        });
+    })
+    // catch error if email does not exist
+    .catch((e) => {
+      response.status(404).send({
+        message: "Email not found",
+        e,
+      });
+    });
+});
 
 // app.get("/account", auth, (request, response) => {
 //   console.log("accessed account");
