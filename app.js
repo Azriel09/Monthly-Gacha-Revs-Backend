@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
 const app = express();
+const auth = require("./auth");
 const db = dbConnect();
 
 app.use((req, res, next) => {
@@ -80,8 +81,7 @@ app.get("/games", function (req, res) {
 
 // login
 app.post("/login", (request, response) => {
-  // check if email exists
-  const rem = request.body.remember;
+  console.log(request);
   Admin.findOne({ username: request.body.username })
 
     // if username exists
@@ -132,6 +132,7 @@ app.post("/login", (request, response) => {
             message: "Passwords does not match",
             error,
           });
+          console.log("Login error");
         });
     })
     // catch error if email does not exist
