@@ -4,6 +4,7 @@ const fs = require("fs");
 const Games = require("./db/gameModel");
 const Admin = require("./db/adminModel");
 const dbConnect = require("./db/dbConnect");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
 const app = express();
@@ -36,7 +37,6 @@ app.post("/register", (request, response) => {
       // create a new user instance and collect the data
       const user = new Admin({
         username: request.body.username,
-
         password: hashedPassword,
       });
 
@@ -66,6 +66,7 @@ app.post("/register", (request, response) => {
       });
     });
 });
+
 app.get("/test", (request, response) => {
   console.log(request);
   response.json({ message: "You are free to access me anytime" });
@@ -81,7 +82,7 @@ app.get("/games", function (req, res) {
 app.post("/login", (request, response) => {
   // check if email exists
   const rem = request.body.remember;
-  User.findOne({ username: request.body.username })
+  Admin.findOne({ username: request.body.username })
 
     // if username exists
     .then((user) => {
@@ -89,7 +90,6 @@ app.post("/login", (request, response) => {
       console.log(user.id);
       bcrypt
         .compare(request.body.password, user.password)
-
         // if the passwords match
         .then((passwordCheck) => {
           // check if password matches
