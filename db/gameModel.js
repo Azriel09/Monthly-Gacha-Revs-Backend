@@ -16,38 +16,26 @@ const GameSchema = new mongoose.Schema({
     required: true,
     unique: false,
   },
-
-  downloadsAndroid: {
+  downloads: {
     type: Array,
     required: true,
     unique: false,
   },
-  downloadsApple: {
+  revenue: {
     type: Array,
     required: true,
     unique: false,
   },
-  revenueAndroid: {
-    type: Array,
+  expandData: {
+    type: Object,
     required: true,
     unique: false,
-  },
-  revenueApple: {
-    type: Array,
-    required: true,
-    unique: false,
-  },
-  totalDownloads: {
-    type: Array,
-    required: true,
-    unique: false,
-  },
-  totalRevenue: {
-    type: Array,
-    required: true,
-    unique: false,
+    revenueAndroid: { type: Array, required: true, unique: false },
+    revenueApple: { type: Array, required: true, unique: false },
+    downloadsAndroid: { type: Array, required: true, unique: false },
+    downloadsApple: { type: Array, required: true, unique: false },
   },
 });
 
 // export GameSchema
-module.exports = mongoose.model.Games || mongoose.model("Games", GameSchema);
+module.exports = mongoose.model.Game || mongoose.model("Game", GameSchema);

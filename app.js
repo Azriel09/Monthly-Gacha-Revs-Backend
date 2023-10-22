@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const fs = require("fs");
-const Games = require("./db/gameModel");
+const Game = require("./db/gameModel");
 const Admin = require("./db/adminModel");
 const dbConnect = require("./db/dbConnect");
 const jwt = require("jsonwebtoken");
@@ -74,20 +74,19 @@ app.get("/test", (request, response) => {
 });
 
 app.get("/games", function (req, res) {
-  Games.find({}).then(function (game) {
+  Game.find({}).then(function (game) {
     res.send(game);
   });
 });
 
 // login
 app.post("/login", (request, response) => {
-  console.log(request);
   Admin.findOne({ username: request.body.username })
 
     // if username exists
     .then((user) => {
       // compare the password entered and the hashed password found
-      console.log(user.id);
+
       bcrypt
         .compare(request.body.password, user.password)
         // if the passwords match
@@ -144,6 +143,26 @@ app.post("/login", (request, response) => {
     });
 });
 
+app.post("/insert", (request, response) => {
+  console.log(request.body.game);
+  Game.updateOne(
+    { name: request.body.game },
+    {
+      downloads: request.body.downloads,
+      revenue: request.body.revenue,
+      expandData: request.body.expandData,
+    }
+  )
+    .then((game) => {
+      response.json(game);
+    })
+    .catch((error) => {
+      response.status(500).send({
+        message: "Error",
+        error,
+      });
+    });
+});
 // app.get("/account", auth, (request, response) => {
 //   console.log("accessed account");
 
