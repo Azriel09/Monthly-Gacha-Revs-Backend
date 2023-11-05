@@ -73,12 +73,29 @@ app.get("/test", (request, response) => {
   response.json({ message: "You are free to access me anytime" });
 });
 
-app.get("/games", function (req, res) {
+app.get("/games", function (request, response) {
   Game.find({}).then(function (game) {
-    res.send(game);
+    response.send(game);
   });
 });
 
+app.post("/find-test", function (request, response) {
+  console.log("accessed");
+  let game = "Honkai Star Rail";
+  let serverName = "global";
+  Game.findOne({ name: game, server: serverName })
+    .then((game) => {
+      if (!game) {
+        console.log("Game doesn't exist");
+        response.render("Error: Game doesn't exist");
+      }
+      response.json(game);
+    })
+    .catch((error) => {
+      console.log(error);
+      response.json(error);
+    });
+});
 // login
 app.post("/login", (request, response) => {
   Admin.findOne({ username: request.body.username })
@@ -163,29 +180,5 @@ app.post("/insert", (request, response) => {
       });
     });
 });
-// app.get("/account", auth, (request, response) => {
-//   console.log("accessed account");
-
-//   User.findOne({ email: request.user.userEmail })
-//     .then((user) => {
-//       response.json({ email: user.email, name: user.name });
-//     })
-//     .catch((e) => {
-//       console.log(e);
-//     });
-// });
-
-// app.get("/dashboard", auth, (request, response) => {
-//   console.log("accessed dashboard");
-
-//   User.findOne({ email: request.user.userEmail })
-//     .then((user) => {
-//       console.log(user.rates);
-//       response.json(user.rates);
-//     })
-//     .catch((e) => {
-//       console.log(e);
-//     });
-// });
 
 module.exports = app;
