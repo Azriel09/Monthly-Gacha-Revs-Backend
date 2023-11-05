@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 });
 
 app.use(cors());
-
+// test
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
